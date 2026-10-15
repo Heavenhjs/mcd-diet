@@ -1,0 +1,46 @@
+{
+  "_note": "实测快照（脱敏）：query-order 返回 data.orderProductList[]，**同一个 MCP 的另一个订单接口，套餐组成的键名却是 itemName/itemQuantity**。这里保留该差异，正是为了让解析层被真实差异考验到。",
+  "_tool": "query-order",
+  "success": true,
+  "code": 200,
+  "message": "请求成功",
+  "data": {
+    "orderId": "DEMO-ORDER-0003",
+    "orderStatus": "订单已完成",
+    "status": "40",
+    "storeName": "麦当劳福州五四路(省农科院)餐厅",
+    "storeAddress": "五四北路247号（树兜路口）",
+    "storeCode": "1410005",
+    "beType": "1",
+    "orderType": "1",
+    "createTime": "2026-10-13 19:02:33",
+    "orderProductList": [
+      {
+        "productName": "精选单人餐三件套",
+        "quantity": 1,
+        "price": "35.0",
+        "comboItemList": [
+          {
+            "itemName": "板烧鸡腿堡",
+            "itemQuantity": 1
+          },
+          {
+            "itemName": "中薯条",
+            "itemQuantity": 1
+          },
+          {
+            "itemName": "可乐中杯",
+            "itemQuantity": 1
+          }
+        ]
+      }
+    ],
+    "totalAmount": "35.0",
+    "realTotalAmount": "35.0",
+    "totalDiscountAmount": "0",
+    "couponList": [],
+    "deliveryPrice": "0",
+    "needTableware": false,
+    "takeWay": "堂食"
+  }
+}

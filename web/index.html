@@ -1,0 +1,756 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>mcd-dev-diet · 麦当劳膳食盘点与加餐推荐</title>
+<style>
+  :root {
+    --bg: #f4f3f0;
+    --panel: #ffffff;
+    --panel-2: #faf9f7;
+    --line: #e7e4de;
+    --line-2: #d8d4cc;
+    --ink: #1c1b19;
+    --ink-2: #4b4842;
+    --muted: #7d7870;
+    --brand: #d9231b;
+    --brand-soft: #fdecea;
+    --gold: #f0b400;
+    --good: #12754a;
+    --good-soft: #e9f5ef;
+    --warn: #a86400;
+    --warn-soft: #fcf3e4;
+    --bad: #bb2419;
+    --bad-soft: #fdecea;
+    --info: #2456c7;
+    --info-soft: #ebf1fd;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(28, 27, 25, .05), 0 10px 28px -14px rgba(28, 27, 25, .22);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.6 "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px 72px; }
+
+  /* ---------- 头部 ---------- */
+  header { padding: 34px 0 22px; }
+
+  .brand-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+  .logo {
+    width: 40px; height: 40px; border-radius: 11px; flex: none;
+    background: linear-gradient(145deg, var(--brand), #a81b14);
+    display: grid; place-items: center; font-size: 21px;
+    box-shadow: 0 4px 12px -4px rgba(217, 35, 27, .55);
+  }
+
+  h1 { font-size: 21px; margin: 0; letter-spacing: -.2px; font-weight: 650; }
+  h1 small { display: block; font-size: 12.5px; font-weight: 400; color: var(--muted); letter-spacing: 0; margin-top: 2px; }
+
+  .spacer { flex: 1 1 auto; }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; padding: 4px 10px; border-radius: 999px;
+    border: 1px solid var(--line-2); background: var(--panel); color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .tag b { font-weight: 600; }
+  .tag.live { border-color: #bfe0cd; background: var(--good-soft); color: var(--good); }
+  .tag.demo { border-color: #f0dcae; background: var(--warn-soft); color: var(--warn); }
+
+  /* ---------- 卡片 ---------- */
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 20px 22px; margin-bottom: 18px;
+  }
+
+  .card > h2 {
+    font-size: 15px; margin: 0 0 4px; font-weight: 650;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card > h2 .n {
+    width: 20px; height: 20px; border-radius: 6px; flex: none;
+    background: var(--brand-soft); color: var(--brand);
+    font-size: 11.5px; display: grid; place-items: center; font-weight: 700;
+  }
+  .card > .sub { font-size: 12.5px; color: var(--muted); margin: 0 0 14px; }
+
+  /* ---------- 输入区 ---------- */
+  .prompt-label { font-size: 13px; font-weight: 600; color: var(--ink-2); margin-bottom: 8px; }
+
+  textarea {
+    width: 100%; min-height: 84px; resize: vertical;
+    border: 1px solid var(--line-2); border-radius: 11px; padding: 12px 14px;
+    font: 15px/1.6 ui-monospace, "SF Mono", Consolas, "Microsoft YaHei", monospace;
+    color: var(--ink); background: var(--panel-2); outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  textarea:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(217, 35, 27, .1); background: #fff; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+  .chip {
+    font-size: 12.5px; padding: 5px 11px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--line-2); background: var(--panel-2); color: var(--ink-2);
+    transition: all .14s;
+  }
+  .chip:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-soft); }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; margin-top: 16px; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field > label { font-size: 12px; color: var(--muted); font-weight: 500; }
+
+  .seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: 10px; overflow: hidden; background: var(--panel-2); }
+  .seg button {
+    border: 0; background: transparent; padding: 8px 15px; cursor: pointer;
+    font: inherit; font-size: 13.5px; color: var(--ink-2); transition: all .14s;
+  }
+  .seg button + button { border-left: 1px solid var(--line-2); }
+  .seg button[aria-pressed="true"] { background: var(--brand); color: #fff; font-weight: 600; }
+
+  .btn {
+    border: 0; border-radius: 11px; padding: 11px 26px; cursor: pointer;
+    font: inherit; font-size: 15px; font-weight: 600; color: #fff;
+    background: linear-gradient(180deg, #e02a21, var(--brand));
+    box-shadow: 0 5px 16px -6px rgba(217, 35, 27, .65);
+    transition: transform .12s, box-shadow .12s, opacity .12s;
+  }
+  .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px -6px rgba(217, 35, 27, .7); }
+  .btn:disabled { opacity: .55; cursor: progress; }
+
+  details.adv { margin-top: 16px; border-top: 1px dashed var(--line); padding-top: 14px; }
+  details.adv > summary {
+    cursor: pointer; font-size: 13px; color: var(--ink-2); font-weight: 500;
+    list-style: none; display: flex; align-items: center; gap: 6px;
+  }
+  details.adv > summary::-webkit-details-marker { display: none; }
+  details.adv > summary::before { content: "▸"; color: var(--muted); transition: transform .15s; }
+  details.adv[open] > summary::before { transform: rotate(90deg); }
+
+  .adv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px 18px; margin-top: 14px; }
+  .adv-grid .field input[type="text"], .adv-grid .field input[type="number"] {
+    border: 1px solid var(--line-2); border-radius: 9px; padding: 8px 11px;
+    font: inherit; font-size: 13.5px; background: var(--panel-2); color: var(--ink); outline: none; width: 100%;
+  }
+  .adv-grid .field input:focus { border-color: var(--brand); background: #fff; }
+  .check { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+  .check input { accent-color: var(--brand); width: 15px; height: 15px; }
+
+  /* ---------- 状态 ---------- */
+  .empty { text-align: center; padding: 46px 20px; color: var(--muted); }
+  .empty .big { font-size: 34px; margin-bottom: 10px; opacity: .5; }
+
+  .alert { border-radius: 11px; padding: 14px 16px; font-size: 13.5px; line-height: 1.65; }
+  .alert + .alert { margin-top: 10px; }
+  .alert.err { background: var(--bad-soft); border: 1px solid #f3c9c5; color: #8e1f16; }
+  .alert.hint { background: var(--info-soft); border: 1px solid #c6d7fa; color: #1b3f96; }
+  .alert.warn { background: var(--warn-soft); border: 1px solid #f0dcae; color: #7d4b00; }
+  .alert b { font-weight: 650; }
+
+  .loading { display: flex; align-items: center; gap: 11px; padding: 26px 6px; color: var(--muted); font-size: 13.5px; }
+  .spin {
+    width: 17px; height: 17px; border-radius: 50%; flex: none;
+    border: 2px solid var(--line-2); border-top-color: var(--brand);
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- 概览条 ---------- */
+  .meta-row { display: flex; flex-wrap: wrap; gap: 8px 10px; margin-bottom: 18px; }
+
+  /* ---------- 分数 ---------- */
+  .hero { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
+
+  .donut { position: relative; width: 132px; height: 132px; flex: none; }
+  .donut svg { transform: rotate(-90deg); display: block; }
+  .donut .val {
+    position: absolute; inset: 0; display: grid; place-content: center; text-align: center;
+  }
+  .donut .val b { font-size: 33px; font-weight: 700; letter-spacing: -1px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .donut .val span { font-size: 11.5px; color: var(--muted); display: block; margin-top: 3px; }
+
+  .hero-text { flex: 1 1 300px; min-width: 260px; }
+  .hero-text .headline { font-size: 17px; font-weight: 650; margin-bottom: 7px; }
+  .hero-text p { margin: 0 0 10px; font-size: 13.5px; color: var(--ink-2); }
+  .hero-text .note { font-size: 12px; color: var(--muted); line-height: 1.65; }
+
+  .delta-pill {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px;
+    padding: 3px 9px; border-radius: 999px; background: var(--good-soft);
+    color: var(--good); font-weight: 600; margin-left: 8px;
+  }
+
+  /* ---------- 表格 ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th {
+    text-align: left; font-weight: 600; color: var(--muted); font-size: 12px;
+    padding: 0 10px 9px 0; border-bottom: 1px solid var(--line); white-space: nowrap;
+  }
+  td { padding: 10px 10px 10px 0; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  tr:last-child td { border-bottom: 0; }
+  .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .name-cell { font-weight: 550; }
+
+  /* ---------- 进度条 ---------- */
+  .bar { position: relative; height: 7px; border-radius: 999px; background: #ecebe7; overflow: hidden; min-width: 76px; }
+  .bar > i { position: absolute; inset: 0 auto 0 0; border-radius: 999px; }
+  .bar-wrap { position: relative; }
+  .bar-mark {
+    position: absolute; top: -3px; bottom: -3px; width: 2px; border-radius: 1px;
+    background: var(--ink-2); opacity: .38; left: 66.666%;
+  }
+
+  .tone-good > i { background: linear-gradient(90deg, #2f9c68, var(--good)); }
+  .tone-warn > i { background: linear-gradient(90deg, #dda63a, var(--warn)); }
+  .tone-bad  > i { background: linear-gradient(90deg, #e0614f, var(--bad)); }
+  .tone-info > i { background: linear-gradient(90deg, #5b86e0, var(--info)); }
+
+  .pill {
+    display: inline-block; font-size: 11.5px; padding: 2px 8px; border-radius: 999px;
+    font-weight: 600; white-space: nowrap;
+  }
+  .pill.good { background: var(--good-soft); color: var(--good); }
+  .pill.warn { background: var(--warn-soft); color: var(--warn); }
+  .pill.bad  { background: var(--bad-soft); color: var(--bad); }
+  .pill.info { background: var(--info-soft); color: var(--info); }
+  .pill.plain { background: var(--panel-2); color: var(--muted); border: 1px solid var(--line); font-weight: 500; }
+
+  /* ---------- 建议卡片 ---------- */
+  .rec {
+    border: 1px solid var(--line); border-radius: 12px; padding: 15px 17px;
+    background: var(--panel-2); margin-bottom: 12px;
+  }
+  .rec:last-child { margin-bottom: 0; }
+  .rec.down { background: #fdf7f6; border-color: #f2d9d5; }
+  .rec-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 9px; }
+  .rec-head .idx {
+    width: 22px; height: 22px; border-radius: 7px; flex: none; align-self: center;
+    background: var(--brand); color: #fff; font-size: 12px; font-weight: 700;
+    display: grid; place-items: center;
+  }
+  .rec.down .rec-head .idx { background: var(--bad); }
+  .rec-head .nm { font-size: 15.5px; font-weight: 650; }
+  .rec-head .gain { font-size: 13px; font-weight: 650; color: var(--good); }
+  .rec.down .rec-head .gain { color: var(--bad); }
+  .rec ul { margin: 0; padding-left: 17px; font-size: 13px; color: var(--ink-2); }
+  .rec li { margin: 3px 0; }
+  .rec li.warn { color: var(--warn); }
+  .rec .foot { margin-top: 10px; display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+
+  /* ---------- 折叠区 ---------- */
+  details.more { margin-top: 4px; }
+  details.more > summary {
+    cursor: pointer; font-size: 13px; color: var(--ink-2); font-weight: 500;
+    padding: 9px 0; list-style: none; display: flex; align-items: center; gap: 6px;
+    border-top: 1px solid var(--line); margin-top: 6px;
+  }
+  details.more > summary::-webkit-details-marker { display: none; }
+  details.more > summary::before { content: "▸"; color: var(--muted); transition: transform .15s; }
+  details.more[open] > summary::before { transform: rotate(90deg); }
+  details.more ul { margin: 6px 0 4px; padding-left: 19px; font-size: 12.5px; color: var(--ink-2); line-height: 1.7; }
+  details.more li { margin: 4px 0; }
+
+  footer {
+    text-align: center; font-size: 12px; color: var(--muted);
+    padding-top: 12px; line-height: 1.8;
+  }
+  footer code { background: var(--panel); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; font-size: 11.5px; }
+
+  @media (max-width: 620px) {
+    .hero { gap: 18px; }
+    .donut { width: 104px; height: 104px; }
+    .donut .val b { font-size: 26px; }
+    .hide-sm { display: none; }
+    th, td { padding-right: 7px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand-row">
+      <div class="logo">🍔</div>
+      <h1>mcd-dev-diet<small>麦当劳膳食盘点与加餐推荐 · 全部数据来自 MCP，不做估算</small></h1>
+      <div class="spacer"></div>
+      <span class="tag" id="healthTag">检查数据通道…</span>
+    </div>
+  </header>
+
+  <section class="card">
+    <div class="prompt-label">今天吃了什么？</div>
+    <textarea id="items" placeholder="例如：板烧鸡腿堡x1,冰美式中杯x1&#10;支持 巨无霸x2 / 巨无霸×2 / 巨无霸 2 三种写法">板烧鸡腿堡x1,冰美式中杯x1</textarea>
+    <div class="chips" id="chips"></div>
+
+    <div class="controls">
+      <div class="field">
+        <label>目标</label>
+        <div class="seg" id="goalSeg">
+          <button data-v="减脂" aria-pressed="true">减脂</button>
+          <button data-v="维持" aria-pressed="false">维持</button>
+          <button data-v="增肌" aria-pressed="false">增肌</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>餐次</label>
+        <div class="seg" id="mealSeg">
+          <button data-v="早餐" aria-pressed="false">早餐</button>
+          <button data-v="午餐" aria-pressed="true">午餐</button>
+          <button data-v="晚餐" aria-pressed="false">晚餐</button>
+          <button data-v="加餐" aria-pressed="false">加餐</button>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn" id="go">分析这顿</button>
+    </div>
+
+    <details class="adv">
+      <summary>高级选项</summary>
+      <div class="adv-grid">
+        <div class="field">
+          <label>门店编码（留空自动识别）</label>
+          <input type="text" id="store" placeholder="如 1410005" />
+        </div>
+        <div class="field">
+          <label>城市 / 地标关键词（成对填写）</label>
+          <input type="text" id="city" placeholder="福州" />
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <input type="text" id="keyword" placeholder="五四路" />
+        </div>
+        <div class="field">
+          <label>匹配覆盖率下限（默认 0.5）</label>
+          <input type="number" id="minCoverage" step="0.1" min="0" max="1" placeholder="0.5" />
+        </div>
+        <div class="field">
+          <label>候选榜条数（默认 5）</label>
+          <input type="number" id="top" min="1" max="50" placeholder="5" />
+        </div>
+        <div class="field">
+          <label>最多加几样（默认 2）</label>
+          <input type="number" id="maxAdd" min="0" max="10" placeholder="2" />
+        </div>
+      </div>
+      <div class="adv-grid" style="margin-top:14px">
+        <label class="check"><input type="checkbox" id="demo" /> 演示模式（离线快照，非实时）</label>
+        <label class="check"><input type="checkbox" id="priceOff" /> 跳过价格查询</label>
+        <label class="check"><input type="checkbox" id="allowRepeat" /> 允许推荐已点过的</label>
+        <label class="check"><input type="checkbox" id="refresh" /> 强制重抓菜单（约 27 秒）</label>
+        <label class="check"><input type="checkbox" id="useHistory" /> 改为读历史订单</label>
+      </div>
+      <div class="adv-grid" style="margin-top:14px; grid-template-columns:1fr">
+        <div class="field">
+          <label>或：粘贴订单 JSON（直接吃 query-order / order-list 的原始返回）</label>
+          <textarea id="orderJson" style="min-height:70px" placeholder='{ "orderProductList": [ { "productName": "巨无霸", "quantity": 1 } ] }'></textarea>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <div id="out">
+    <div class="empty">
+      <div class="big">🍟</div>
+      <div>填好上面那顿，点「分析这顿」</div>
+    </div>
+  </div>
+
+  <footer>
+    营养与价格数据均来自麦当劳 MCP Server，缺失即标「未匹配」并按 0 计，<b>不做任何估算</b>。<br />
+    输出仅供参考，不构成医疗或营养建议。CLI 用法见 <code>npm run diet -- --help</code>。
+  </footer>
+</div>
+
+<script>
+/* ==================================================================
+   前端：只负责把 /api/analyze 的返回值画出来。
+   所有计算都在服务端（复用 CLI 的同一份流水线），这里不做任何营养计算。
+   ================================================================== */
+
+const $ = (id) => document.getElementById(id);
+
+const UNITS = { energy: 'kcal', protein: 'g', fat: 'g', carb: 'g', sodium: 'mg', calcium: 'mg' };
+const INT_KEYS = new Set(['energy', 'sodium', 'calcium']);
+
+const BAND = {
+  'far-below': { label: '明显不足', tone: 'bad' },
+  below: { label: '偏少', tone: 'warn' },
+  'on-target': { label: '达标', tone: 'good' },
+  above: { label: '偏多', tone: 'warn' },
+  'far-above': { label: '明显超标', tone: 'bad' },
+  free: { label: '充足', tone: 'info' },
+};
+
+const MATCH_LABEL = { exact: '精确', menu: '目录', fuzzy: '模糊', component: '套餐拆解', none: '未匹配' };
+
+function fmtNum(v, key) {
+  if (v === null || v === undefined || Number.isNaN(v)) return '—';
+  if (INT_KEYS.has(key)) return Math.round(v).toLocaleString('zh-CN');
+  const r = Math.round(v * 10) / 10;
+  return Number.isInteger(r) ? String(r) : r.toFixed(1);
+}
+
+/** delta / scoreAfter 都是 0~1 标度，展示时 ×100 变成「分」 */
+const toPoints = (v) => (v === null || v === undefined ? null : v * 100);
+
+function esc(s) {
+  return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
+function scoreTone(s100) {
+  if (s100 >= 80) return 'var(--good)';
+  if (s100 >= 65) return '#1f7a6b';
+  if (s100 >= 50) return 'var(--warn)';
+  return 'var(--bad)';
+}
+
+/* ---------------- 进度条 ---------------- */
+function bar(ratio, tone) {
+  const pct = Math.max(0, Math.min(ratio / 1.5, 1)) * 100;
+  return `<div class="bar-wrap"><div class="bar tone-${tone}"><i style="width:${pct.toFixed(1)}%"></i></div><div class="bar-mark"></div></div>`;
+}
+
+/* ---------------- 渲染 ---------------- */
+function render(d, elapsedMs) {
+  const ctx = d.context || {};
+  const per = (d.score && d.score.perNutrient) || {};
+  const s100 = (d.score && d.score.score100) || 0;
+  const f100 = (d.finalScore && d.finalScore.score100) || s100;
+  const live = ctx.source === 'mcp';
+
+  const parts = [];
+
+  /* 概览条 */
+  parts.push('<div class="meta-row">');
+  parts.push(`<span class="tag ${live ? 'live' : 'demo'}">${live ? '● MCP 实时数据' : '○ 演示模式（离线快照）'}</span>`);
+  if (ctx.storeName || ctx.storeCode) {
+    parts.push(`<span class="tag">门店 <b>${esc(ctx.storeName || ctx.storeCode)}</b>${ctx.storeName && ctx.storeCode ? ` · ${esc(ctx.storeCode)}` : ''}</span>`);
+  }
+  parts.push(`<span class="tag">覆盖率 <b>${Math.round((d.coverage || 0) * 100)}%</b></span>`);
+  if (d.catalog) parts.push(`<span class="tag">候选池 <b>${d.catalog.poolSize}</b> 个</span>`);
+  if (elapsedMs) parts.push(`<span class="tag">耗时 <b>${(elapsedMs / 1000).toFixed(1)}s</b></span>`);
+  parts.push(`<span class="tag">${esc(ctx.generatedAt || '')}</span>`);
+  parts.push('</div>');
+
+  /* 拒答提示 */
+  if (d.suppressed && d.suppressed.reason) {
+    parts.push(`<div class="card"><h2><span class="n">!</span>本次刻意不出加餐建议</h2>
+      <div class="alert warn" style="margin-top:10px">${esc(d.suppressed.reason)}</div>
+      <p class="sub" style="margin:12px 0 0">本工具的前提是「所有营养数值都来自 MCP，不做估算」。既然这一顿有一部分查不到，在残缺基线上算出的缺口就不可信 —— 宁可不给建议。</p></div>`);
+  }
+
+  /* 平衡分 */
+  const C = 2 * Math.PI * 52;
+  const pct = Math.max(0, Math.min(s100, 100)) / 100;
+  const gain = toPoints((d.finalScore && d.finalScore.score) - (d.score && d.score.score));
+  const tone = scoreTone(s100);
+
+  parts.push(`<section class="card">
+    <h2><span class="n">1</span>这顿的平衡分</h2>
+    <div class="hero" style="margin-top:12px">
+      <div class="donut">
+        <svg width="132" height="132" viewBox="0 0 132 132">
+          <circle cx="66" cy="66" r="52" fill="none" stroke="#ecebe7" stroke-width="13" />
+          <circle cx="66" cy="66" r="52" fill="none" stroke="${tone}" stroke-width="13" stroke-linecap="round"
+                  stroke-dasharray="${(pct * C).toFixed(1)} ${C.toFixed(1)}" />
+        </svg>
+        <div class="val"><b style="color:${tone}">${s100.toFixed(1)}</b><span>/ 100</span></div>
+      </div>
+      <div class="hero-text">
+        <div class="headline">${headline(ctx.goal, ctx.meal, s100)}${Math.abs(gain) >= 0.05 ? `<span class="delta-pill">采纳建议后 ${f100.toFixed(1)} 分（${gain > 0 ? '+' : ''}${gain.toFixed(1)}）</span>` : ''}</div>
+        <p>软评分口径：单营养素得分 = <b>1 / (1 + (偏离/容差)²)</b>，越接近目标越高，没有硬阈值。总分 = 加权算术均值与几何均值的混合（几何占 40%，用来放大短板）。</p>
+        <div class="note">参与维度：6 个营养素 + 1 个能量质量。目标基准取《中国居民膳食指南（2022）》成人轻体力活动日参考量 ÷ 3，再按「${esc(ctx.goal || '')}」档位与「${esc(ctx.meal || '')}」餐次系数调整。</div>
+      </div>
+    </div>
+  </section>`);
+
+  /* 营养盘点 */
+  parts.push(`<section class="card">
+    <h2><span class="n">2</span>营养盘点（对比目标）</h2>
+    <p class="sub">进度条上的竖线是「刚好达标」的位置，越往右越过越多。</p>
+    <table>
+      <thead><tr>
+        <th>营养素</th><th class="num">摄入</th><th class="hide-sm num">目标</th><th class="num hide-sm">达成</th>
+        <th style="width:26%">偏离程度</th><th class="num">软评分</th><th>状态</th>
+      </tr></thead>
+      <tbody>`);
+
+  for (const key of ['energy', 'protein', 'fat', 'carb', 'sodium', 'calcium']) {
+    const n = per[key];
+    if (!n) continue;
+    const b = BAND[n.band] || { label: n.band, tone: 'info' };
+    const u = UNITS[key] || '';
+    parts.push(`<tr>
+      <td class="name-cell">${esc(n.label)}</td>
+      <td class="num">${fmtNum(n.value, key)} <span style="color:var(--muted);font-size:11.5px">${u}</span></td>
+      <td class="num hide-sm" style="color:var(--muted)">${fmtNum(n.target, key)}</td>
+      <td class="num hide-sm">${Math.round((n.ratio || 0) * 100)}%</td>
+      <td>${bar(n.ratio || 0, b.tone)}</td>
+      <td class="num">${(n.score || 0).toFixed(2)}</td>
+      <td><span class="pill ${b.tone}">${esc(b.label)}</span></td>
+    </tr>`);
+  }
+  parts.push('</tbody></table></section>');
+
+  /* 这顿吃了什么 */
+  parts.push(`<section class="card">
+    <h2><span class="n">3</span>这顿吃了什么</h2>
+    <p class="sub">匹配方式说明数据是从哪来的：精确 = 营养库同名条目；目录 = 门店在售菜单对应；套餐拆解 = 把套餐拆成默认组成再累加。</p>
+    <table>
+      <thead><tr>
+        <th>餐品</th><th class="num">份</th><th class="num">能量</th><th class="num">蛋白</th>
+        <th class="num">脂肪</th><th class="num hide-sm">碳水</th><th class="num hide-sm">钠</th><th class="num hide-sm">钙</th><th>匹配</th>
+      </tr></thead><tbody>`);
+
+  for (const it of d.items || []) {
+    const f = it.facts || {};
+    const has = f.energy !== undefined && f.energy !== null;
+    parts.push(`<tr>
+      <td class="name-cell">${esc(it.name)}</td>
+      <td class="num">${it.qty}</td>
+      <td class="num">${has ? fmtNum(f.energy, 'energy') : '—'}</td>
+      <td class="num">${has ? fmtNum(f.protein, 'protein') : '—'}</td>
+      <td class="num">${has ? fmtNum(f.fat, 'fat') : '—'}</td>
+      <td class="num hide-sm">${has ? fmtNum(f.carb, 'carb') : '—'}</td>
+      <td class="num hide-sm">${has ? fmtNum(f.sodium, 'sodium') : '—'}</td>
+      <td class="num hide-sm">${has ? fmtNum(f.calcium, 'calcium') : '—'}</td>
+      <td><span class="pill ${has ? 'plain' : 'bad'}">${esc(MATCH_LABEL[it.matchType] || it.matchType || '—')}</span></td>
+    </tr>`);
+  }
+  parts.push('</tbody></table>');
+
+  if ((d.unknown || []).length) {
+    parts.push(`<div class="alert warn" style="margin-top:14px">
+      <b>${d.unknown.length} 项未匹配</b>：${d.unknown.map((u) => esc(u.name) + '×' + u.qty).join('、')}<br />
+      这些项<b>未计入上表总量</b>。本工具不做营养估算，所以宁可标「未匹配」也不拿同类餐品补数。
+    </div>`);
+  }
+  parts.push('</section>');
+
+  /* 建议 */
+  const recs = d.recommendations || [];
+  const rms = d.removals || [];
+
+  parts.push(`<section class="card"><h2><span class="n">4</span>还能加点啥让这顿更平衡</h2>`);
+
+  if (recs.length) {
+    parts.push(`<p class="sub">按顺序吃，每加一样都会重新算一次分。价格来自 MCP <code>calculate-price</code> 实时询价。</p>`);
+    recs.forEach((r, i) => {
+      const g = toPoints(r.delta);
+      parts.push(`<div class="rec">
+        <div class="rec-head">
+          <span class="idx">+${i + 1}</span>
+          <span class="nm">${esc(r.name)}</span>
+          ${g !== null ? `<span class="gain">平衡分 +${g.toFixed(1)}</span>` : ''}
+          ${r.price && r.price.amount != null ? `<span class="pill plain">¥${Number(r.price.amount).toFixed(2)}${r.price.source === 'mcp-live' ? ' · 实时' : ' · 参考'}</span>` : ''}
+        </div>
+        <ul>${(r.reasons || []).map((t) => `<li class="${/^注意/.test(t) ? 'warn' : ''}">${esc(t)}</li>`).join('')}</ul>
+        ${(r.fixes || []).length ? `<div class="foot">${r.fixes.map((f) => `<span class="pill info">${esc(f.label)} ${f.deltaValue > 0 ? '+' : ''}${fmtNum(f.deltaValue, f.key)}</span>`).join('')}</div>` : ''}
+      </div>`);
+    });
+  } else if (!d.suppressed) {
+    parts.push(`<div class="alert hint">这顿已经在目标之上，<b>再加任何一样都会拉低平衡分</b>。调节方向应从「减项」入手 —— 见下。</div>`);
+  }
+
+  if (rms.length) {
+    parts.push(`<h2 style="margin-top:20px"><span class="n">−</span>建议减掉的部分</h2>
+      <p class="sub">这顿已超标，减项比加项更能提升平衡分。</p>`);
+    rms.forEach((r) => {
+      const g = toPoints(r.delta);
+      parts.push(`<div class="rec down">
+        <div class="rec-head">
+          <span class="idx">↓</span>
+          <span class="nm">减 ${esc(r.name)}${r.qty > 1 ? ` ×${r.qty}` : ''}</span>
+          ${g !== null ? `<span class="gain">平衡分 +${g.toFixed(1)}</span>` : ''}
+        </div>
+        ${(r.helps || []).length ? `<div class="foot">${r.helps.map((h) => `<span class="pill info">改善 ${esc(h)}</span>`).join('')}</div>` : ''}
+      </div>`);
+    });
+  }
+
+  if (recs.length) {
+    parts.push(`<div class="alert hint" style="margin-top:14px">加上这些之后：<b>${s100.toFixed(1)} → ${f100.toFixed(1)} 分</b></div>`);
+  }
+  parts.push('</section>');
+
+  /* 候选榜 */
+  const ranked = d.ranked || [];
+  if (ranked.length) {
+    parts.push(`<section class="card">
+      <h2><span class="n">5</span>其他可考虑的候选</h2>
+      <p class="sub">全部候选（已排除你这顿点过的）按平衡分增益排序，取前若干名。</p>
+      <table>
+        <thead><tr><th>候选</th><th class="num">平衡分增益</th><th class="num">价格</th><th>主要补什么</th></tr></thead><tbody>`);
+    for (const r of ranked) {
+      const g = toPoints(r.delta);
+      parts.push(`<tr>
+        <td class="name-cell">${esc(r.name)}${r.kind === 'combo' ? ' <span class="pill plain">套餐</span>' : ''}</td>
+        <td class="num" style="color:var(--good);font-weight:600">${g !== null ? '+' + g.toFixed(1) : '—'}</td>
+        <td class="num">${r.price && r.price.amount != null ? '¥' + Number(r.price.amount).toFixed(2) : '—'}</td>
+        <td style="color:var(--ink-2);font-size:13px">${(r.fixes || []).map(esc).join('、') || '—'}</td>
+      </tr>`);
+    }
+    parts.push('</tbody></table></section>');
+  }
+
+  /* 数据来源 */
+  parts.push(`<section class="card">
+    <h2><span class="n">i</span>数据来源与假设</h2>
+    <p class="sub">每个数字从哪来，逐条可查。</p>`);
+
+  if (d.stats) {
+    parts.push(`<div class="meta-row">
+      <span class="tag">候选池 <b>${d.stats.menuSize}</b></span>
+      <span class="tag">排除已点后 <b>${d.stats.candidateSize}</b></span>
+      <span class="tag">已点被排除 <b>${d.stats.excludedCount}</b></span>
+      <span class="tag">无营养数据被丢弃 <b>${d.stats.droppedNoNutrition}</b></span>
+    </div>`);
+  }
+
+  if ((d.provenance || []).length) {
+    parts.push(`<details class="more"><summary>调用链路（${d.provenance.length} 条）</summary><ul>${d.provenance.map((p) => `<li>${esc(p)}</li>`).join('')}</ul></details>`);
+  }
+  if ((d.assumptions || []).length) {
+    parts.push(`<details class="more"><summary>本次的计算假设（${d.assumptions.length} 条）</summary><ul>${d.assumptions.map((p) => `<li>${esc(p)}</li>`).join('')}</ul></details>`);
+  }
+  parts.push('</section>');
+
+  $('out').innerHTML = parts.join('');
+}
+
+function headline(goal, meal, s100) {
+  const band = s100 >= 80 ? '相当均衡' : s100 >= 65 ? '比较均衡' : s100 >= 50 ? '有明显短板' : '离目标较远';
+  return `${esc(goal || '')} · ${esc(meal || '')} —— ${band}`;
+}
+
+/* ---------------- 请求 ---------------- */
+let busy = false;
+
+async function analyze() {
+  if (busy) return;
+  busy = true;
+  const btn = $('go');
+  btn.disabled = true;
+  btn.textContent = '分析中…';
+  $('out').innerHTML = '<div class="card"><div class="loading"><div class="spin"></div><div id="tip">正在连麦当劳 MCP Server 取数据…</div></div></div>';
+
+  // 首次冷启动要抓上百个餐品详情（约 27 秒），给点预期管理
+  const slow = setTimeout(() => {
+    const t = $('tip');
+    if (t) t.textContent = '首次运行需要抓取门店菜单详情（约 27 秒），之后会走缓存，约 1.5 秒。';
+  }, 3500);
+
+  const q = new URLSearchParams();
+  const items = $('items').value.trim();
+  const orderJson = $('orderJson').value.trim();
+
+  if (orderJson) q.set('orderJson', orderJson);
+  else if ($('useHistory').checked) q.set('fromHistory', '1');
+  else if (items) q.set('items', items);
+
+  q.set('goal', seg('goalSeg'));
+  q.set('meal', seg('mealSeg'));
+
+  const put = (id, k) => { const v = $(id).value.trim(); if (v) q.set(k, v); };
+  put('store', 'store');
+  put('city', 'city');
+  put('keyword', 'keyword');
+  put('minCoverage', 'minCoverage');
+  put('top', 'top');
+  put('maxAdd', 'maxAdd');
+
+  if ($('demo').checked) q.set('demo', '1');
+  if ($('priceOff').checked) q.set('price', '0');
+  if ($('allowRepeat').checked) q.set('allowRepeat', '1');
+  if ($('refresh').checked) q.set('refresh', '1');
+
+  try {
+    const res = await fetch('/api/analyze?' + q.toString());
+    const body = await res.json();
+    if (!body.ok) {
+      $('out').innerHTML = `<div class="card">
+        <div class="alert err"><b>${esc(body.error)}</b></div>
+        ${body.hint ? `<div class="alert hint">${esc(body.hint)}</div>` : ''}
+        ${body.detail && body.detail.length > 1 ? `<div class="alert warn">${body.detail.map(esc).join('<br />')}</div>` : ''}
+      </div>`;
+      return;
+    }
+    render(body.data, body.elapsedMs);
+  } catch (err) {
+    $('out').innerHTML = `<div class="card"><div class="alert err"><b>请求失败</b><br />${esc(err.message)}</div></div>`;
+  } finally {
+    clearTimeout(slow);
+    busy = false;
+    btn.disabled = false;
+    btn.textContent = '分析这顿';
+  }
+}
+
+/* ---------------- 分段控件 ---------------- */
+function seg(id) {
+  const el = document.querySelector(`#${id} button[aria-pressed="true"]`);
+  return el ? el.dataset.v : '';
+}
+for (const id of ['goalSeg', 'mealSeg']) {
+  $(id).addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    for (const x of $(id).querySelectorAll('button')) x.setAttribute('aria-pressed', String(x === b));
+    try { localStorage.setItem('mcd.' + id, b.dataset.v); } catch {}
+  });
+  try {
+    const saved = localStorage.getItem('mcd.' + id);
+    if (saved) for (const x of $(id).querySelectorAll('button')) x.setAttribute('aria-pressed', String(x.dataset.v === saved));
+  } catch {}
+}
+
+/* ---------------- 示例 ---------------- */
+const EXAMPLES = [
+  ['巨无霸x1,中薯条x1', '点了偏多的'],
+  ['板烧鸡腿堡x1,冰美式中杯x1', '轻食午餐'],
+  ['精选单人餐三件套x1', '套餐拆解'],
+  ['麦乐鸡5块x1,可乐中杯x1', '小食'],
+  ['双层深海鳕鱼堡x1,小杯鲜萃咖啡x1', '偏低卡'],
+];
+
+$('chips').innerHTML = EXAMPLES.map(([v, t]) => `<button class="chip" data-v="${esc(v)}">${esc(t)}　${esc(v)}</button>`).join('');
+$('chips').addEventListener('click', (e) => {
+  const b = e.target.closest('.chip');
+  if (!b) return;
+  $('items').value = b.dataset.v;
+  $('orderJson').value = '';
+  $('useHistory').checked = false;
+  analyze();
+});
+
+$('go').addEventListener('click', analyze);
+$('items').addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) analyze(); });
+
+/* ---------------- 健康检查 ---------------- */
+(async () => {
+  try {
+    const h = await (await fetch('/api/health')).json();
+    $('healthTag').className = 'tag ' + (h.hasToken ? 'live' : 'demo');
+    $('healthTag').textContent = h.hasToken ? '● MCP 实时通道就绪' : '○ 未配 MCD_MCP_TOKEN，请勾选演示模式';
+    if (!h.hasToken) $('demo').checked = true;
+  } catch {
+    $('healthTag').textContent = '○ 服务未就绪';
+  }
+})();
+</script>
+</body>
+</html>

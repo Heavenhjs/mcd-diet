@@ -1,0 +1,44 @@
+{
+  "_note": "实测快照：calculate-price 的所有金额单位是「分」（1590 = ¥15.90）。productList[].subtotal 是单价×数量。",
+  "_tool": "calculate-price",
+  "success": true,
+  "code": 200,
+  "message": "请求成功",
+  "datetime": "2026-10-15 14:25:17",
+  "traceId": "2671ce945c350851d6934fb3623e88cb",
+  "data": {
+    "productOriginalPrice": 12990,
+    "productPrice": 12990,
+    "originalPrice": 12990,
+    "discount": 0,
+    "price": 12990,
+    "productList": [
+      {
+        "productCode": "9900016076",
+        "productName": "“我就喜欢”鸡薯双全盒",
+        "quantity": 1,
+        "originalSubtotal": 1590,
+        "subtotal": 1590
+      },
+      {
+        "productCode": "9900016311",
+        "productName": "龙焰美味四件套",
+        "quantity": 2,
+        "originalSubtotal": 11400,
+        "subtotal": 11400
+      }
+    ],
+    "takeWayList": [
+      {
+        "code": "eat-in",
+        "title": "堂食",
+        "subtitle": "店内用餐"
+      },
+      {
+        "code": "locker-out",
+        "title": "外带",
+        "subtitle": "店外取餐柜"
+      }
+    ]
+  }
+}

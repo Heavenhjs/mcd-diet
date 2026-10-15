@@ -1,0 +1,69 @@
+{
+  "_note": "实测快照（脱敏）：order-list 返回 data.list[]，每单含 orderProductList[]，套餐组成在 comboItemList[] 且键名是 name/quantity。orderId 已替换为演示号。 列表第一单（DEMO-ORDER-0003）与 demo-order-detail.json 是同一单，保证演示时 order-list 与 query-order 同步。",
+  "_tool": "order-list",
+  "success": true,
+  "code": 200,
+  "message": "请求成功",
+  "data": {
+    "list": [
+      {
+        "orderId": "DEMO-ORDER-0003",
+        "orderType": "1",
+        "createTime": "2026-10-15 12:31:08",
+        "beType": "1",
+        "beCode": "",
+        "storeCode": "1410005",
+        "storeName": "麦当劳福州五四路(省农科院)餐厅",
+        "orderStatus": "订单已完成",
+        "realTotalAmount": "35.0",
+        "orderProductList": [
+          {
+            "productCode": "9900004064",
+            "productName": "精选单人餐三件套",
+            "quantity": 1,
+            "comboItemList": [
+              {
+                "productCode": "1406",
+                "name": "板烧鸡腿堡",
+                "quantity": 1
+              },
+              {
+                "productCode": "4810",
+                "name": "中薯条",
+                "quantity": 1
+              },
+              {
+                "productCode": "515526",
+                "name": "可乐中杯",
+                "quantity": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "orderId": "DEMO-ORDER-0001",
+        "orderType": "1",
+        "createTime": "2026-10-13 19:02:33",
+        "beType": "1",
+        "beCode": "",
+        "storeCode": "1410005",
+        "storeName": "麦当劳福州五四路(省农科院)餐厅",
+        "orderStatus": "订单已完成",
+        "realTotalAmount": "44.5",
+        "orderProductList": [
+          {
+            "productCode": "1100",
+            "productName": "巨无霸",
+            "quantity": 1
+          },
+          {
+            "productCode": "4810",
+            "productName": "中薯条",
+            "quantity": 1
+          }
+        ]
+      }
+    ]
+  }
+}

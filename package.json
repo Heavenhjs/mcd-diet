@@ -1,0 +1,46 @@
+{
+  "name": "mcd-dev-diet",
+  "version": "0.2.0",
+  "private": false,
+  "description": "输入今天吃了什么（订单 JSON 或手输），输出这顿的营养盘点 + 还能加点啥让这顿更平衡。全部数据来自麦当劳 MCP Server，不做任何营养估算。",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "mcdonalds",
+    "nutrition",
+    "skill",
+    "workbuddy"
+  ],
+  "engines": {
+    "node": ">=18.17"
+  },
+  "bin": {
+    "mcd-dev-diet": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "web",
+    "test",
+    "fixtures",
+    "data",
+    "README.md",
+    "MCP_INTEGRATION.md",
+    "mcp-config.example.json"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepare": "npm run build",
+    "diet": "node dist/cli.js",
+    "probe": "node dist/cli.js probe",
+    "selftest": "npm run build --silent && node dist/selftest.js",
+    "demo": "npm run build --silent && node dist/cli.js --demo --order fixtures/demo-order-list.json --goal fat-loss --meal lunch --out out/demo-report.md",
+    "serve": "npm run build --silent && node dist/server.js",
+    "test:ui": "npm run build --silent && node test/ui-smoke.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}

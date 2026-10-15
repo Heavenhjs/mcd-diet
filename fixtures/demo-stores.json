@@ -1,0 +1,54 @@
+{
+  "_note": "实测快照：query-nearby-stores 需要 beType + searchType，且必须同时给 city 与 keyword。",
+  "_tool": "query-nearby-stores",
+  "success": true,
+  "code": 200,
+  "message": "请求成功",
+  "data": [
+    {
+      "storeCode": "1410005",
+      "storeName": "麦当劳福州五四路(省农科院)餐厅",
+      "address": "五四北路247号（树兜路口）",
+      "distance": 55,
+      "businessStatus": true,
+      "businessStartTime": "00:00",
+      "businessEndTime": "23:59"
+    },
+    {
+      "storeCode": "1410486",
+      "storeName": "麦当劳福州华林路永辉餐厅",
+      "address": "华林路245号世纪明珠",
+      "distance": 673,
+      "businessStatus": true,
+      "businessStartTime": "07:00",
+      "businessEndTime": "00:00"
+    },
+    {
+      "storeCode": "1410561",
+      "storeName": "麦当劳福州新华都大厦(五四路)旗舰餐厅",
+      "address": "五四路162号新华都大厦一楼（麦当劳）",
+      "distance": 782,
+      "businessStatus": true,
+      "businessStartTime": "07:00",
+      "businessEndTime": "02:00"
+    },
+    {
+      "storeCode": "1410112",
+      "storeName": "麦当劳福州五四中路餐厅",
+      "address": "五四中路嘉信大厦（古三座）",
+      "distance": 829,
+      "businessStatus": true,
+      "businessStartTime": "06:30",
+      "businessEndTime": "23:59"
+    },
+    {
+      "storeCode": "1410202",
+      "storeName": "麦当劳福州恒力博纳餐厅",
+      "address": "北二环路恒力博纳广场一楼",
+      "distance": 869,
+      "businessStatus": true,
+      "businessStartTime": "00:00",
+      "businessEndTime": "23:59"
+    }
+  ]
+}
